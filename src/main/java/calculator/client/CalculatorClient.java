@@ -6,6 +6,7 @@ import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 
 public class CalculatorClient {
@@ -16,11 +17,52 @@ public class CalculatorClient {
                 .build();
 //        doUnaryCall(channel);
 //        doServerStreamingCall(channel);
+//        doClientStreamingCall(channel);
 
-        doClientStreamingCall(channel);
-
+        doBiDiStreamingCall (channel);
         System.out.println("SERVER is shutting down...");
         channel.shutdown();
+    }
+
+    private void doBiDiStreamingCall(ManagedChannel channel) {
+        CalculatorServiceGrpc.CalculatorServiceStub asyncClient = CalculatorServiceGrpc.newStub(channel);
+
+        CountDownLatch latch = new CountDownLatch(1);
+
+        StreamObserver<FindMaxRequest> requestObserver = asyncClient.findMaximum(new StreamObserver<FindMaxResponse>() {
+            @Override
+            public void onNext(FindMaxResponse value) {
+                System.out.println("Got new max from SERVER >-> " + value.getMax());
+            }
+
+            @Override
+            public void onError(Throwable t) {
+                latch.countDown();
+
+            }
+
+            @Override
+            public void onCompleted() {
+                System.out.println("SERVER is done sending data");
+
+            }
+        });
+
+        Arrays.asList(3, 12, 3, 44, 55, 123, 444, 1, 23, 44, 5555).forEach(
+                number -> {
+                    System.out.println("Sending ... " + number);
+                    requestObserver.onNext(FindMaxRequest.newBuilder()
+                            .setNumber(number)
+                            .build());
+
+                    try {
+                        Thread.sleep(200);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+                }
+        );
+
     }
 
     private void doClientStreamingCall(ManagedChannel channel) {
