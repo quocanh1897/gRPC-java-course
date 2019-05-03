@@ -1,8 +1,10 @@
 package com.grpc.server;
 
 import com.proto.greet.*;
+import io.grpc.Context;
 import io.grpc.stub.StreamObserver;
 
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
@@ -43,9 +45,9 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
                 Thread.sleep(1000);
 
             }
-        }catch (InterruptedException e){
+        } catch (InterruptedException e) {
             e.printStackTrace();
-        }finally {
+        } finally {
             responseObserver.onCompleted();
         }
 
@@ -75,15 +77,17 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
 
                 responseObserver.onNext(
                         LongGreetResponse.newBuilder()
-                        .setResult(result)
-                        .build()
+                                .setResult(result)
+                                .build()
                 );
                 responseObserver.onCompleted();
             }
         };
 
         return requestObserver;
-    };
+    }
+
+    ;
 
     @Override
     public StreamObserver<GreetEveryoneRequest> greetEveryone(StreamObserver<GreetEveryoneResponse> responseObserver) {
@@ -110,6 +114,35 @@ public class GreetServiceImpl extends GreetServiceGrpc.GreetServiceImplBase {
             }
         };
 
-        return  requestObserver;
+        return requestObserver;
+    }
+
+    @Override
+    public void greetWithDeadline(GreetWithDeadlineRequest request, StreamObserver<GreetWithDeadlineResponse> responseObserver) {
+
+        Context current = Context.current();
+
+        try {
+            for (int i = 0; i < 3; i++) {
+
+                if (!current.isCancelled()) {
+                    System.out.println("Sleep for 100 ms <|<->|>");
+                    Thread.sleep(100);
+                }else{
+                    return;
+                }
+            }
+
+            System.out.println("Send response >=>" );
+            responseObserver.onNext(
+                    GreetWithDeadlineResponse.newBuilder()
+                            .setResult("Hello >- " + request.getGreeting().getFirstName())
+                            .build()
+            );
+
+            responseObserver.onCompleted();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
     }
 }
