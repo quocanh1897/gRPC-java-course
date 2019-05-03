@@ -9,7 +9,19 @@ service CalculatorService {
     //Unary
     rpc Sum(SumRequest) returns (SumResponse) {};
 
+    //Server streaming
     rpc PrimeNumberDecomposition(PrimeNumberDecompositionRequest) returns (stream PrimeNumberDecompositionResponse) {};
+
+    //Client streaming
+    rpc ComputeAverage(stream ComputeAverageRequest) returns (ComputeAverageResponse) {};
+}
+
+message ComputeAverageRequest {
+    int32 number = 1;
+}
+
+message ComputeAverageResponse {
+    double average = 1;
 }
 
 message PrimeNumberDecompositionRequest {

@@ -47,7 +47,7 @@ public class GreetingClient {
             @Override
             public void onNext(LongGreetResponse value) {
                 // get a response from SERVER
-                System.out.println("Received a response from SERVER --->\n");
+                System.out.println("Received a response from SERVER >->\n");
                 System.out.println(value.getResult());
                 // onNext will be called only once
             }
@@ -61,7 +61,7 @@ public class GreetingClient {
             public void onCompleted() {
                 // the SERVER is done sending us data
                 // onCompleted will be called right after onNext()
-                System.out.println("<--- Server has completed sending data");
+                System.out.println("<-< Server has completed sending data");
 
                 latch.countDown();
             }
