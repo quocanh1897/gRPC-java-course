@@ -4,6 +4,8 @@ import com.grpc.client.GreetingClient;
 import com.proto.calculator.*;
 import io.grpc.ManagedChannel;
 import io.grpc.ManagedChannelBuilder;
+import io.grpc.StatusException;
+import io.grpc.StatusRuntimeException;
 import io.grpc.stub.StreamObserver;
 
 import java.util.Arrays;
@@ -18,10 +20,28 @@ public class CalculatorClient {
 //        doUnaryCall(channel);
 //        doServerStreamingCall(channel);
 //        doClientStreamingCall(channel);
+//        doBiDiStreamingCall (channel);
+        doErrorCall(channel);
 
-        doBiDiStreamingCall (channel);
         System.out.println("SERVER is shutting down...");
         channel.shutdown();
+    }
+
+    private void doErrorCall(ManagedChannel channel) {
+        CalculatorServiceGrpc.CalculatorServiceBlockingStub blockingStub = CalculatorServiceGrpc.newBlockingStub(channel);
+
+        int number = -2134;
+
+        try {
+            blockingStub.squareRoot(SqrRequest.newBuilder()
+                .setNumber(number)
+                .build());
+        }
+        catch (StatusRuntimeException e){
+            System.out.println("Got an exception ");
+            e.printStackTrace();
+        }
+
     }
 
     private void doBiDiStreamingCall(ManagedChannel channel) {

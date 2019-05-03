@@ -1,6 +1,5 @@
 package calculator.server;
 
-import com.grpc.server.GreetServiceImpl;
 import io.grpc.Server;
 import io.grpc.ServerBuilder;
 
