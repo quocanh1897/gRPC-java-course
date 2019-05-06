@@ -17,9 +17,20 @@ public class BlogClient {
         doReadBlog(channel);
         doUpdateBlog(channel);
         doDeleteBlog(channel);
+        doListBlog(channel);
 
         System.out.println("Shutting down the SERVER");
         channel.shutdown();
+    }
+
+    private void doListBlog(ManagedChannel channel) {
+        BlogServiceGrpc.BlogServiceBlockingStub blogClient = BlogServiceGrpc.newBlockingStub(channel);
+
+    blogClient
+        .listBlog(ListBlogRequest.newBuilder().build())
+        .forEachRemaining(listBlogResponse -> System.out.println(listBlogResponse.getBlog().toString()));
+
+        System.out.println("Received List-blog response");
     }
 
     private void doDeleteBlog(ManagedChannel channel) {

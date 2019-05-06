@@ -10,6 +10,7 @@ service BlogService {
     rpc ReadBlog(ReadBlogRequest) returns (ReadBlogResponse);
     rpc UpdateBlog(UpdateBlogRequest) returns (UpdateBlogResponse);
     rpc DeleteBlog(DeleteBlogRequest) returns (DeleteBlogResponse);
+    rpc ListBlog(ListBlogRequest) returns (stream ListBlogResponse);
 }
 
 message Blog {
@@ -49,4 +50,12 @@ message DeleteBlogRequest {
 
 message DeleteBlogResponse {
     string blog_id = 1;
+}
+
+message ListBlogRequest {
+
+}
+
+message ListBlogResponse {
+    Blog blog =  1;
 }
