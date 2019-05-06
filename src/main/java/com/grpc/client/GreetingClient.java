@@ -3,25 +3,32 @@ package com.grpc.client;
 import com.proto.calculator.CalculatorServiceGrpc;
 import com.proto.greet.*;
 import io.grpc.*;
+import io.grpc.netty.shaded.io.grpc.netty.GrpcSslContexts;
+import io.grpc.netty.shaded.io.grpc.netty.NettyChannelBuilder;
 import io.grpc.stub.StreamObserver;
 
+import javax.net.ssl.SSLException;
+import java.io.File;
 import java.util.Arrays;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 public class GreetingClient {
-    ManagedChannel channel;
-
-    private void run() {
-        channel = ManagedChannelBuilder.forAddress("localhost", 7777)
+    private void run() throws SSLException {
+        ManagedChannel channel = ManagedChannelBuilder.forAddress("localhost", 7777)
                 .usePlaintext()
+                .build();
+
+        ManagedChannel securedChannel = NettyChannelBuilder.forAddress("localhost", 7777)
+                .sslContext(GrpcSslContexts.forClient().trustManager(new File("ssl/ca.crt")).build())
                 .build();
 
         // doUnaryCall(channel);
         // doServerStreamingCall(channel);
         // doClientStreamingCall(channel);
         // doBiDiStreamingCall(channel);
-        doUnaryCallWithDeadline(channel);
+        // doUnaryCallWithDeadline(channel);
+        doUnaryCall(securedChannel);
 
         System.out.println("Shutting down the SERVER");
         channel.shutdown();
@@ -237,7 +244,7 @@ public class GreetingClient {
         System.out.println(greetResponse.getResult());
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SSLException {
         System.out.println("HELLO from client");
 
         GreetingClient main = new GreetingClient();
